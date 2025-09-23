@@ -16,3 +16,6 @@ local.properties
 
 # Sentry Config File
 sentry.properties
+
+# Prevent committing large sentry-wizard file
+sentry-wizard
