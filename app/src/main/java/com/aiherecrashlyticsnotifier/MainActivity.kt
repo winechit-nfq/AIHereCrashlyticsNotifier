@@ -4,14 +4,27 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.aiherecrashlyticsnotifier.ui.theme.AIHereCrashlyticsNotifierTheme
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -24,36 +37,100 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AIHereCrashlyticsNotifierTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                MainScreen()
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(
-            text = "Hello $name!"
-        )
-        Button(onClick = {
-            // Trigger a Sentry test crash
-            throw RuntimeException("Test Sentry crash")
-        }) {
-            Text("Test Sentry Crash")
+fun MainScreen() {
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = { Text("AIHere Notifier", style = MaterialTheme.typography.titleLarge) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp, vertical = 24.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "Crash and Error Test Lab",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Use the buttons below to trigger different kinds of crashes and non-fatal errors to verify Sentry and Crashlytics integration.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            ElevatedButton(
+                onClick = {
+                    // 1) Force a fatal crash to test Sentry + Crashlytics crash capture
+                    throw RuntimeException("Test fatal crash from UI button")
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Trigger Fatal Crash")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = {
+                    // 2) Record a non-fatal exception to Crashlytics
+                    val exception = IllegalStateException("Non-fatal: Crashlytics logged exception")
+                    FirebaseCrashlytics.getInstance().recordException(exception)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Log Non‑Fatal to Crashlytics")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = {
+                    // 3) Capture a message and exception in Sentry without crashing
+                    Sentry.captureMessage("Non-fatal test message from UI button")
+                    val exception = IllegalArgumentException("Non-fatal: Sentry captured exception")
+                    Sentry.captureException(exception)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Capture Non‑Fatal in Sentry")
+            }
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun MainScreenPreview() {
     AIHereCrashlyticsNotifierTheme {
-        Greeting("Android")
+        MainScreen()
     }
 }
