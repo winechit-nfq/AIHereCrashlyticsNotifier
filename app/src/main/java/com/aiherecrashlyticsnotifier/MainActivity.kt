@@ -1,6 +1,9 @@
 package com.aiherecrashlyticsnotifier
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -24,6 +27,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.aiherecrashlyticsnotifier.ui.theme.AIHereCrashlyticsNotifierTheme
@@ -43,14 +47,26 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+fun wrongCalculation(context: Context) {
+    // Intentionally wrong calculation: division by zero
+    val numerator = 10
+    val denominator = 0
+    try {
+        val result = numerator / denominator
+    } catch (e: ArithmeticException) {
+        throw RuntimeException("Wrong calculation: Division by zero", e)
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
+    val context = LocalContext.current
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text("AIHere Notifier", style = MaterialTheme.typography.titleLarge) },
+                title = { Text("TroubleSoup", style = MaterialTheme.typography.titleLarge) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -122,6 +138,18 @@ fun MainScreen() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Capture Non‑Fatal in Sentry")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = {
+                    // 4) Call wrong calculation function and throw exception
+                    wrongCalculation(context)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Trigger Wrong Calculation Exception")
             }
         }
     }
