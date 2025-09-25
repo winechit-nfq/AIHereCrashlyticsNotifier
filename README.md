@@ -72,6 +72,8 @@ Add these images to `docs/` (or replace with your own URLs) so they render below
 
 ![GitHub Issue (AI generated analysis)](docs/github-issue.png)
 
+![Jira Incident Summary](docs/jira-incident.png)
+
 ![Notion Incident Report](docs/notion-incident.png)
 
 ![n8n Workflow Automation](docs/n8n-workflow.png)
